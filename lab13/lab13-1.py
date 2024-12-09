@@ -1,32 +1,29 @@
-import unittest
+import heapq
 
-def min_coins(coins, amount, memo):
-    if amount == 0:
-        return 0
-    if amount < 0:
-        return float('inf')
-    if amount in memo:
-        return memo[amount]
+class Solution(object):
+    def minCostConnectPoints(self, points):
     
-    min_count = float('inf')
-    for coin in coins:
-        count = min_coins(coins, amount - coin, memo) + 1
-        min_count = min(min_count, count)
-    
-    memo[amount] = min_count
-    return min_count
+        n = len(points)
+        visited = [False] * n
+        min_heap = [(0, 0)] 
+        total_cost = 0
+        edges_used = 0
 
-def coin_change(coins, amount):
-    result = min_coins(coins, amount, {})
-    return result if result != float('inf') else -1
+        def manhattan_dist(p1, p2):
+            return abs(p1[0] - p2[0]) + abs(p1[1] - p2[1])
 
-# Unittest ашиглан тест хийх
-class TestCoinChange(unittest.TestCase):
-    def test_examples(self):
-        self.assertEqual(coin_change([1, 2, 5], 11), 3)  # 5+5+1
-        self.assertEqual(coin_change([2], 3), -1)       # Боломжгүй
-        self.assertEqual(coin_change([1], 0), 0)       # 0 зоос
-        self.assertEqual(coin_change([186, 419, 83, 408], 6249), 20)
+        while edges_used < n:
+            cost, curr_point = heapq.heappop(min_heap)
+            if visited[curr_point]:
+                continue
 
-if __name__ == "__main__":
-    unittest.main()
+            visited[curr_point] = True
+            total_cost += cost
+            edges_used += 1
+
+            for next_point in range(n):
+                if not visited[next_point]:
+                    dist = manhattan_dist(points[curr_point], points[next_point])
+                    heapq.heappush(min_heap, (dist, next_point))
+
+        return total_cost
